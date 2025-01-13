@@ -62,7 +62,7 @@ const Produk = () => {
   return (
     <section className="py-20 bg-gray-50" id="produk">
       <div className="container mx-auto px-4">
-        <h2 className="text-4xl font-light text-center mb-12">Produk Kami</h2>
+        <h2 className="text-4xl font-light text-center mb-12 text-black">Produk Kami</h2>
 
         <div className="flex flex-wrap justify-center mb-12 space-x-4">
           {categories.map((category) => (

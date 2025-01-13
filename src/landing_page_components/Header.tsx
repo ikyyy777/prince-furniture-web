@@ -52,12 +52,12 @@ const Header = () => {
             ))}
           </nav>
 
-          <button
-            className="md:hidden text-gray-700"
+          <div
+            className="md:hidden bg-transparent text-black hover:text-gray-600 cursor-pointer" 
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
             {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
+          </div>
         </div>
       </div>
 

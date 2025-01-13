@@ -94,7 +94,7 @@ const Produk = () => {
                 />
               </div>
               <div className="p-6">
-                <h3 className="text-xl font-medium mb-2">{product.name}</h3>
+                <h3 className="text-xl font-medium mb-2 text-gray-900">{product.name}</h3>
                 <p className="text-gray-600">{formatRupiah(product.price)}</p>
                 <p className="text-gray-600">Stok: {product.stock}</p>
               </div>
@@ -120,7 +120,7 @@ const Produk = () => {
           <div className="bg-white rounded-lg max-w-2xl w-full mx-4">
             <div className="p-6">
               <div className="flex justify-between items-start mb-4">
-                <h3 className="text-2xl font-medium">{selectedProduct.name}</h3>
+                <h3 className="text-2xl font-medium text-gray-900">{selectedProduct.name}</h3>
                 <button
                   onClick={() => setSelectedProduct(null)}
                   className="text-gray-500 hover:text-gray-700"

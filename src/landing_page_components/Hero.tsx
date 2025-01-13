@@ -61,7 +61,7 @@ const Hero = () => {
                 {slide.subtitle}
               </p>
               <button className="bg-white text-gray-900 px-6 py-2 md:px-8 md:py-3 rounded-full hover:bg-gray-100 transition-colors duration-300 transform translate-y-0 transition-transform duration-1000 delay-400">
-                Explore Collection
+                Lihat Produk
               </button>
             </div>
           </div>

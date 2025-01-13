@@ -16,7 +16,7 @@ function App() {
       <Kontak />
       <Footer />
       <a
-        href="https://wa.me/1234567890"
+        href="https://wa.me/085100631631"
         className="fixed bottom-4 right-4 bg-green-500 text-white p-3 rounded-full shadow-lg hover:bg-green-600 transition-colors duration-300 flex items-center"
         target="_blank"
         rel="noopener noreferrer"

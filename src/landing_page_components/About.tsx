@@ -1,9 +1,9 @@
 import { Award, Users, Star, Truck } from 'lucide-react';
 
 const stats = [
-  { icon: Award, value: '15+', label: 'Years of Excellence' },
+  { icon: Award, value: '30+', label: 'Years of Excellence' },
   { icon: Users, value: '10k+', label: 'Happy Customers' },
-  { icon: Star, value: '4.9', label: 'Average Rating' },
+  { icon: Star, value: '5.0', label: 'Average Rating' },
   { icon: Truck, value: 'Same Day', label: 'Delivery Time' },
 ];
 

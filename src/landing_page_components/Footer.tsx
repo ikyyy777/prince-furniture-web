@@ -1,5 +1,14 @@
-
 const Footer = () => {
+  const scrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+    }
+  };
+
   return (
     <footer className="bg-white text-gray-900 py-8">
       <div className="container mx-auto px-4">
@@ -7,19 +16,19 @@ const Footer = () => {
           <div>
             <h3 className="text-xl font-medium mb-4">Prince Furniture</h3>
             <p className="text-gray-600">
-              123 Design Street<br />
-              New York, NY 10001
+              Jl. Komisaris Bambang Suprapto No.103, Cigrobak, Purwokerto Lor, Kec. Purwokerto Timur.<br />
+              Kabupaten Banyumas, Jawa Tengah 53111
             </p>
-            <p className="text-gray-600 mt-2">+1 (555) 123-4567</p>
-            <p className="text-gray-600">info@mobel.com</p>
+            <p className="text-gray-600 mt-2">+62 851-0063-1631</p>
+            <p className="text-gray-600">princefurniturepwt@gmail.com</p>
           </div>
           <div>
             <h3 className="text-xl font-medium mb-4">Quick Links</h3>
             <ul className="space-y-2">
-              <li><a href="#beranda" className="text-gray-600 hover:text-gray-900 transition-colors duration-300">Beranda</a></li>
-              <li><a href="#produk" className="text-gray-600 hover:text-gray-900 transition-colors duration-300">Produk</a></li>
-              <li><a href="#tentang" className="text-gray-600 hover:text-gray-900 transition-colors duration-300">Tentang</a></li>
-              <li><a href="#kontak" className="text-gray-600 hover:text-gray-900 transition-colors duration-300">Kontak</a></li>
+              <li><a onClick={(e) => { e.preventDefault(); scrollToSection('beranda'); }} href="#beranda" className="text-gray-600 hover:text-gray-900 transition-colors duration-300 cursor-pointer">Beranda</a></li>
+              <li><a onClick={(e) => { e.preventDefault(); scrollToSection('produk'); }} href="#produk" className="text-gray-600 hover:text-gray-900 transition-colors duration-300 cursor-pointer">Produk</a></li>
+              <li><a onClick={(e) => { e.preventDefault(); scrollToSection('tentang'); }} href="#tentang" className="text-gray-600 hover:text-gray-900 transition-colors duration-300 cursor-pointer">Tentang</a></li>
+              <li><a onClick={(e) => { e.preventDefault(); scrollToSection('kontak'); }} href="#kontak" className="text-gray-600 hover:text-gray-900 transition-colors duration-300 cursor-pointer">Kontak</a></li>
             </ul>
           </div>
           <div>

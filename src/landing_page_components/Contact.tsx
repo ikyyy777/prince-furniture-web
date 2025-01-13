@@ -4,7 +4,7 @@ const Kontak = () => {
   return (
     <section className="py-20 bg-gray-50" id="kontak">
       <div className="container mx-auto px-4">
-        <h2 className="text-4xl font-light text-center mb-12">Get in Touch</h2>
+        <h2 className="text-4xl font-light text-center mb-12">Kontak Kami</h2>
 
         <div className="grid md:grid-cols-2 gap-12">
           <div>
@@ -24,10 +24,10 @@ const Kontak = () => {
             <div className="flex items-start space-x-4">
               <MapPin className="w-6 h-6 text-gray-700 mt-1" />
               <div>
-                <h3 className="text-xl font-medium mb-2">Visit Us</h3>
+                <h3 className="text-xl font-medium mb-2">Alamat</h3>
                 <p className="text-gray-600">
-                  123 Design Street<br />
-                  New York, NY 10001
+                Jl. Komisaris Bambang Suprapto No.103, Cigrobak, Purwokerto Lor, Kec. Purwokerto Timur.<br />
+                Kabupaten Banyumas, Jawa Tengah 53111
                 </p>
               </div>
             </div>
@@ -35,11 +35,9 @@ const Kontak = () => {
             <div className="flex items-start space-x-4">
               <Clock className="w-6 h-6 text-gray-700 mt-1" />
               <div>
-                <h3 className="text-xl font-medium mb-2">Business Hours</h3>
+                <h3 className="text-xl font-medium mb-2">Jam Buka</h3>
                 <p className="text-gray-600">
-                  Monday - Friday: 9:00 AM - 6:00 PM<br />
-                  Saturday: 10:00 AM - 4:00 PM<br />
-                  Sunday: Closed
+                  Setiap Hari: 8:30 AM - 17:00<br />
                 </p>
               </div>
             </div>
@@ -47,8 +45,8 @@ const Kontak = () => {
             <div className="flex items-start space-x-4">
               <Phone className="w-6 h-6 text-gray-700 mt-1" />
               <div>
-                <h3 className="text-xl font-medium mb-2">Phone</h3>
-                <p className="text-gray-600">+1 (555) 123-4567</p>
+                <h3 className="text-xl font-medium mb-2">Hubungi Kami</h3>
+                <p className="text-gray-600">+62 851-0063-1631</p>
               </div>
             </div>
 
@@ -56,7 +54,7 @@ const Kontak = () => {
               <Mail className="w-6 h-6 text-gray-700 mt-1" />
               <div>
                 <h3 className="text-xl font-medium mb-2">Email</h3>
-                <p className="text-gray-600">info@mobel.com</p>
+                <p className="text-gray-600">princefurniturepwt@gmail.com</p>
               </div>
             </div>
           </div>

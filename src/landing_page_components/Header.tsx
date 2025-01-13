@@ -33,7 +33,7 @@ const Header = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-20">
           <a href="#" className="flex items-center">
-            <img src="./src/assets/logo.png" alt="Prince Furniture Logo" className="h-8 mr-2" />
+            <img src="./assets/logo.png" alt="Prince Furniture Logo" className="h-8 mr-2" />
             <span className="text-2xl font-semibold" style={{ color: '#980201' }}>Prince Furniture</span>
           </a>
           <nav className="hidden md:flex items-center space-x-8">

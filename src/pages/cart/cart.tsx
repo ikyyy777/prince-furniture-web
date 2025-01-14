@@ -9,31 +9,56 @@ type CartItem = {
   quantity: number;
 }
 
+const products = [
+  {
+    id: 1,
+    name: 'Sofa Modern',
+    category: 'Sofa',
+    price: 1299000,
+    image: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80',
+    stock: 10,
+  },
+  {
+    id: 2,
+    name: 'Rangka Tempat Tidur Minimalis',
+    category: 'Kasur',
+    price: 899000,
+    image: 'https://images.unsplash.com/photo-1505693314120-0d443867891c?auto=format&fit=crop&w=800&q=80',
+    stock: 5,
+  },
+  {
+    id: 3,
+    name: 'Set Meja Makan',
+    category: 'Ruang Makan',
+    price: 1599000,
+    image: 'https://images.unsplash.com/photo-1617806118233-18e1de247200?auto=format&fit=crop&w=800&q=80',
+    stock: 8,
+  }
+];
+
 const Cart = () => {
-  const [cartItems, setCartItems] = useState<CartItem[]>([
-    {
-      id: 1,
-      name: "Sofa Modern",
-      price: 1299000,
-      image: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80",
-      quantity: 2
-    },
-    {
-      id: 2,
-      name: "Rangka Tempat Tidur Minimalis",
-      price: 899000,
-      image: "https://images.unsplash.com/photo-1505693314120-0d443867891c?auto=format&fit=crop&w=800&q=80",
-      quantity: 1
-    },
-    {
-      id: 3,
-      name: "Set Meja Makan",
-      price: 1599000,
-      image: "https://images.unsplash.com/photo-1617806118233-18e1de247200?auto=format&fit=crop&w=800&q=80",
-      quantity: 1
-    }
-  ]);
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [totalPrice, setTotalPrice] = useState(0);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedCart = localStorage.getItem('cartItems');
+      if (savedCart) {
+        const parsedCart = JSON.parse(savedCart);
+        const cartItemsArray = Object.entries(parsedCart).map(([id, quantity]) => {
+          const product = products.find(p => p.id === Number(id));
+          return {
+            id: Number(id),
+            name: product?.name || '',
+            price: product?.price || 0,
+            image: product?.image || '',
+            quantity: quantity as number
+          };
+        });
+        setCartItems(cartItemsArray);
+      }
+    }
+  }, []);
 
   const formatRupiah = (price: number) => {
     return new Intl.NumberFormat('id-ID', {
@@ -43,15 +68,32 @@ const Cart = () => {
   };
 
   const updateQuantity = (id: number, newQuantity: number) => {
-    setCartItems(prevItems => 
-      prevItems.map(item => 
+    setCartItems(prevItems => {
+      const updatedItems = prevItems.map(item => 
         item.id === id ? {...item, quantity: newQuantity} : item
-      )
-    );
+      ).filter(item => item.quantity > 0);
+
+      const cartObject = updatedItems.reduce((obj, item) => ({
+        ...obj,
+        [item.id]: item.quantity
+      }), {});
+
+      localStorage.setItem('cartItems', JSON.stringify(cartObject));
+      return updatedItems;
+    });
   };
 
   const removeItem = (id: number) => {
-    setCartItems(prevItems => prevItems.filter(item => item.id !== id));
+    setCartItems(prevItems => {
+      const updatedItems = prevItems.filter(item => item.id !== id);
+      const cartObject = updatedItems.reduce((obj, item) => ({
+        ...obj,
+        [item.id]: item.quantity
+      }), {});
+
+      localStorage.setItem('cartItems', JSON.stringify(cartObject));
+      return updatedItems;
+    });
   };
 
   useEffect(() => {

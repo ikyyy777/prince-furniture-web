@@ -105,7 +105,13 @@ const allCategories: Category[] = [
 
 const Produk = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('Semua');
-  const [cartItems, setCartItems] = useState<{[key: number]: number}>({});
+  const [cartItems, setCartItems] = useState<{[key: number]: number}>(() => {
+    if (typeof window !== 'undefined') {
+      const savedCart = localStorage.getItem('cartItems');
+      return savedCart ? JSON.parse(savedCart) : {};
+    }
+    return {};
+  });
   const [showAllCategories, setShowAllCategories] = useState(false);
   const [showNavButtons, setShowNavButtons] = useState(false);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -136,6 +142,9 @@ const Produk = () => {
     
     setTotalItems(items);
     setTotalPrice(price);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('cartItems', JSON.stringify(newCart));
+    }
   };
 
   const addToCart = (productId: number) => {
@@ -207,6 +216,31 @@ const Produk = () => {
       });
     }
   };
+
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'cartItems') {
+        const newCart = e.newValue ? JSON.parse(e.newValue) : {};
+        setCartItems(newCart);
+        updateCartTotals(newCart);
+      }
+    };
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('storage', handleStorageChange);
+      return () => window.removeEventListener('storage', handleStorageChange);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedCart = localStorage.getItem('cartItems');
+      if (savedCart) {
+        const parsedCart = JSON.parse(savedCart);
+        updateCartTotals(parsedCart);
+      }
+    }
+  }, []);
 
   return (
     <section className="py-20 bg-white" id="produk">
@@ -311,6 +345,14 @@ const Produk = () => {
                   alt={product.name}
                   className="absolute w-full h-full object-cover"
                 />
+                {/* Watermark */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <img 
+                    src="./assets/logo.png" 
+                    alt="Prince Furniture Watermark"
+                    className="w-1/3 h-1/3 object-contain opacity-30"
+                  />
+                </div>
               </div>
               <div className="p-4 md:p-6">
                 <h3 className="text-sm md:text-xl font-medium mb-2 text-gray-900">{product.name}</h3>
@@ -368,12 +410,12 @@ const Produk = () => {
                 {formatRupiah(totalPrice)}
               </div>
             </div>
-            <button 
+            <a 
+              href="/cart"
               className="bg-[#990100] text-white px-6 py-2 rounded-lg hover:bg-[#990100]/90 transition-colors"
-              onClick={() => {/* Handle checkout */}}
             >
               Checkout
-            </button>
+            </a>
           </div>
         </div>
       )}

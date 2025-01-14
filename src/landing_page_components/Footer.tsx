@@ -14,7 +14,7 @@ const Footer = () => {
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
-            <h3 className="text-xl font-medium mb-4">Prince Furniture</h3>
+            <h3 className="text-xl font-medium mb-4 text-[#990100]">Prince Furniture</h3>
             <p className="text-gray-600">
               Jl. Komisaris Bambang Suprapto No.103, Cigrobak, Purwokerto Lor, Kec. Purwokerto Timur.<br />
               Kabupaten Banyumas, Jawa Tengah 53111
@@ -23,21 +23,21 @@ const Footer = () => {
             <p className="text-gray-600">princefurniturepwt@gmail.com</p>
           </div>
           <div>
-            <h3 className="text-xl font-medium mb-4">Quick Links</h3>
+            <h3 className="text-xl font-medium mb-4 text-[#990100]">Quick Links</h3>
             <ul className="space-y-2">
-              <li><a onClick={(e) => { e.preventDefault(); scrollToSection('beranda'); }} href="#beranda" className="text-gray-600 hover:text-gray-900 transition-colors duration-300 cursor-pointer">Beranda</a></li>
-              <li><a onClick={(e) => { e.preventDefault(); scrollToSection('produk'); }} href="#produk" className="text-gray-600 hover:text-gray-900 transition-colors duration-300 cursor-pointer">Produk</a></li>
-              <li><a onClick={(e) => { e.preventDefault(); scrollToSection('tentang'); }} href="#tentang" className="text-gray-600 hover:text-gray-900 transition-colors duration-300 cursor-pointer">Tentang</a></li>
-              <li><a onClick={(e) => { e.preventDefault(); scrollToSection('kontak'); }} href="#kontak" className="text-gray-600 hover:text-gray-900 transition-colors duration-300 cursor-pointer">Kontak</a></li>
+              <li><a onClick={(e) => { e.preventDefault(); scrollToSection('beranda'); }} href="#beranda" className="text-gray-600 hover:text-[#990100] transition-colors duration-300 cursor-pointer">Beranda</a></li>
+              <li><a onClick={(e) => { e.preventDefault(); scrollToSection('produk'); }} href="#produk" className="text-gray-600 hover:text-[#990100] transition-colors duration-300 cursor-pointer">Produk</a></li>
+              <li><a onClick={(e) => { e.preventDefault(); scrollToSection('tentang'); }} href="#tentang" className="text-gray-600 hover:text-[#990100] transition-colors duration-300 cursor-pointer">Tentang</a></li>
+              <li><a onClick={(e) => { e.preventDefault(); scrollToSection('kontak'); }} href="#kontak" className="text-gray-600 hover:text-[#990100] transition-colors duration-300 cursor-pointer">Kontak</a></li>
             </ul>
           </div>
           <div>
-            <h3 className="text-xl font-medium mb-4">Ikuti Kami</h3>
+            <h3 className="text-xl font-medium mb-4 text-[#990100]">Ikuti Kami</h3>
             <ul className="space-y-2">
-              <li><a href="#" className="text-gray-600 hover:text-gray-900 transition-colors duration-300">Facebook</a></li>
-              <li><a href="#" className="text-gray-600 hover:text-gray-900 transition-colors duration-300">Instagram</a></li>
-              <li><a href="#" className="text-gray-600 hover:text-gray-900 transition-colors duration-300">Twitter</a></li>
-              <li><a href="#" className="text-gray-600 hover:text-gray-900 transition-colors duration-300">LinkedIn</a></li>
+              <li><a href="#" className="text-gray-600 hover:text-[#990100] transition-colors duration-300">Facebook</a></li>
+              <li><a href="#" className="text-gray-600 hover:text-[#990100] transition-colors duration-300">Instagram</a></li>
+              <li><a href="#" className="text-gray-600 hover:text-[#990100] transition-colors duration-300">Twitter</a></li>
+              <li><a href="#" className="text-gray-600 hover:text-[#990100] transition-colors duration-300">LinkedIn</a></li>
             </ul>
           </div>
         </div>

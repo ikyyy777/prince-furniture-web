@@ -1,11 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Search, ShoppingCart } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -29,7 +27,7 @@ const Header = () => {
     >
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-20">
-          <a href="#" className="flex items-center">
+          <a href="/" className="flex items-center">
             <img src="./assets/logo.png" alt="Prince Furniture Logo" className="h-8 mr-2" />
             <span className="text-2xl font-semibold hidden md:block" style={{ color: '#980201' }}>Prince Furniture</span>
           </a>

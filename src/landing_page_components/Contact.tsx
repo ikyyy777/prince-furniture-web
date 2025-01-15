@@ -2,7 +2,7 @@ import { Mail, Phone, MapPin, Clock } from 'lucide-react';
 
 const Kontak = () => {
   return (
-    <section className="py-20 bg-white text-black" id="kontak">
+    <section className="py-5 bg-white text-black" id="kontak">
       <div className="container mx-auto px-4">
         <h2 className="text-4xl font-bold mb-12 text-[#990100]">Kontak Kami</h2>
 

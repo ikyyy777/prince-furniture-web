@@ -1,109 +1,29 @@
 import { useState, useRef, useEffect } from 'react';
-import { ShoppingCart, Sofa, Bed, UtensilsCrossed, Building2, BookOpen, LayoutGrid, ChevronDown, X, ChevronLeft, ChevronRight, Minus, Plus, Trash2 } from 'lucide-react';
+import { ShoppingCart, Sofa, Bed, UtensilsCrossed, Building2, BookOpen, LayoutGrid, ChevronLeft, ChevronRight, Minus, Plus, Trash2 } from 'lucide-react';
 
 type Product = {
   id: number;
   name: string;
   category: string;
   price: number;
-  image: string;
+  image_urls: string[]; // Updated to array
   stock: number;
+  description: string;
 };
 
 type Category = {
+  id: number;
   name: string;
-  icon: React.ReactNode;
-}
+  icon_component?: React.ReactNode;
+};
 
-const products: Product[] = [
-  {
-    id: 1,
-    name: 'Sofa Modern',
-    category: 'Sofa',
-    price: 1299000,
-    image: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80',
-    stock: 10,
-  },
-  {
-    id: 2,
-    name: 'Rangka Tempat Tidur Minimalis',
-    category: 'Kasur',
-    price: 899000,
-    image: 'https://images.unsplash.com/photo-1505693314120-0d443867891c?auto=format&fit=crop&w=800&q=80',
-    stock: 5,
-  },
-  {
-    id: 3,
-    name: 'Set Meja Makan',
-    category: 'Ruang Makan',
-    price: 1599000,
-    image: 'https://images.unsplash.com/photo-1617806118233-18e1de247200?auto=format&fit=crop&w=800&q=80',
-    stock: 8,
-  },
-  {
-    id: 4,
-    name: 'Kursi Ergonomis',
-    category: 'Kantor',
-    price: 499000,
-    image: 'https://images.unsplash.com/photo-1505843490538-5133c6c7d0e1?auto=format&fit=crop&w=800&q=80',
-    stock: 15,
-  },
-  {
-    id: 5,
-    name: 'Lemari Pakaian Modern', 
-    category: 'Lemari',
-    price: 2499000,
-    image: 'https://images.unsplash.com/photo-1595428774223-ef52624120d2?auto=format&fit=crop&w=800&q=80',
-    stock: 7,
-  },
-  {
-    id: 6,
-    name: 'Lemari Buku Minimalis',
-    category: 'Lemari',
-    price: 1899000,
-    image: 'https://images.unsplash.com/photo-1594620302200-9a762244a156?auto=format&fit=crop&w=800&q=80',
-    stock: 4,
-  }
-];
-
-const categories: Category[] = [
-  {
-    name: 'Semua',
-    icon: <LayoutGrid size={20} />
-  },
-  {
-    name: 'Sofa',
-    icon: <Sofa size={20} />
-  },
-  {
-    name: 'Kasur',
-    icon: <Bed size={20} />
-  },
-  {
-    name: 'Ruang Makan',
-    icon: <UtensilsCrossed size={20} />
-  },
-  {
-    name: 'Kantor',
-    icon: <Building2 size={20} />
-  },
-  {
-    name: 'Lemari',
-    icon: <BookOpen size={20} />
-  }
-];
-
-const allCategories: Category[] = [
-  ...categories,
-  { name: 'Meja', icon: <BookOpen size={20} /> },
-  { name: 'Kursi', icon: <BookOpen size={20} /> },
-  { name: 'Rak', icon: <BookOpen size={20} /> },
-  { name: 'Dekorasi', icon: <BookOpen size={20} /> },
-  { name: 'Lampu', icon: <BookOpen size={20} /> },
-  { name: 'Karpet', icon: <BookOpen size={20} /> }
-];
+const iconMap: {[key: string]: React.ReactNode} = {
+  'default': <BookOpen size={20} />
+};
 
 const Produk = () => {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('Semua');
   const [cartItems, setCartItems] = useState<{[key: number]: number}>(() => {
     if (typeof window !== 'undefined') {
@@ -112,14 +32,64 @@ const Produk = () => {
     }
     return {};
   });
-  const [showAllCategories, setShowAllCategories] = useState(false);
   const [showNavButtons, setShowNavButtons] = useState(false);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
   const [totalItems, setTotalItems] = useState(0);
   const [totalPrice, setTotalPrice] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   
   const categoryContainerRef = useRef<HTMLDivElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch(import.meta.env.VITE_CATEGORIES_API_URL);
+        if (!response.ok) {
+          throw new Error('Failed to fetch categories');
+        }
+        const data = await response.json();
+        const categoriesWithIcons = [
+          {
+            id: 0,
+            name: 'Semua',
+            icon_component: <LayoutGrid size={20} />
+          },
+          ...data.categories.map((cat: {id: number, name: string, icon?: string, icon_name?: string}) => ({
+            id: cat.id,
+            name: cat.name,
+            icon_component: cat.icon_name ? iconMap[cat.icon_name] || iconMap['default'] : undefined
+          }))
+        ];
+        setCategories(categoriesWithIcons);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to fetch categories');
+      }
+    };
+
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch(import.meta.env.VITE_PRODUCTS_API_URL);
+        if (!response.ok) {
+          throw new Error('Failed to fetch products');
+        }
+        const data = await response.json();
+        setProducts(data.products.map((product: Product) => ({
+          ...product,
+          image_url: product.image_urls[0] // Use first image as main image
+        })));
+        setLoading(false);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to fetch products');
+        setLoading(false);
+      }
+    };
+
+    fetchCategories();
+    fetchProducts();
+  }, []);
 
   const formatRupiah = (angka: number) => {
     return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(angka);
@@ -149,12 +119,21 @@ const Produk = () => {
 
   const addToCart = (productId: number) => {
     setCartItems(prev => {
-      const newCart = {
-        ...prev,
-        [productId]: (prev[productId] || 0) + 1
-      };
-      updateCartTotals(newCart);
-      return newCart;
+      const product = products.find(p => p.id === productId);
+      const currentQty = prev[productId] || 0;
+      
+      // Cek apakah stok mencukupi
+      if (product && currentQty < product.stock) {
+        const newCart = {
+          ...prev,
+          [productId]: currentQty + 1
+        };
+        updateCartTotals(newCart);
+        return newCart;
+      }
+      
+      // Jika stok tidak mencukupi, kembalikan keranjang yang sama
+      return prev;
     });
   };
 
@@ -181,16 +160,6 @@ const Produk = () => {
       updateCartTotals(newCart);
       return newCart;
     });
-  };
-
-  const handleCloseModal = () => {
-    setShowAllCategories(false);
-  };
-
-  const handleClickOutside = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (e.target === e.currentTarget) {
-      handleCloseModal();
-    }
   };
 
   const checkScroll = () => {
@@ -242,95 +211,65 @@ const Produk = () => {
     }
   }, []);
 
+  if (loading) {
+    return <div className="container mx-auto px-4 py-20">Loading...</div>;
+  }
+
+  if (error) {
+    return <div className="container mx-auto px-4 py-20">Error: {error}</div>;
+  }
+
   return (
-    <section className="py-20 bg-white" id="produk">
+    <section ref={sectionRef} className="py-5 bg-white" id="produk">
       <div className="container mx-auto px-4">
         <h2 className="text-4xl font-bold mb-12 text-[#990100]">Pilihan Furniture</h2>
 
-        <div className="relative mb-8" onMouseEnter={() => setShowNavButtons(true)} onMouseLeave={() => setShowNavButtons(false)}>
-          <div 
-            ref={categoryContainerRef}
-            className="flex items-center gap-2 overflow-x-auto pb-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']"
-            onScroll={checkScroll}
-          >
-            {categories.slice(0, 5).map((category) => (
-              <div
-                key={category.name}
-                onClick={() => setSelectedCategory(category.name)}
-                className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all cursor-pointer
-                  ${selectedCategory === category.name 
-                    ? 'bg-[#990100] text-white' 
-                    : 'text-gray-700 hover:text-[#990100]'}`}
-              >
-                {category.icon}
-                <span>{category.name}</span>
-              </div>
-            ))}
-            <button
-              onClick={() => setShowAllCategories(true)}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-full text-sm bg-gray-100 text-gray-700 hover:bg-gray-200"
-            >
-              <span>Lainnya</span>
-              <ChevronDown size={16} />
-            </button>
-          </div>
-          {showNavButtons && (
-            <>
-              {canScrollLeft && (
-                <div 
-                  onClick={() => scroll('left')}
-                  className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 w-8 h-8 bg-white rounded-full shadow-md flex items-center justify-center hover:bg-gray-100 transition-colors z-10 cursor-pointer"
-                >
-                  <ChevronLeft className="text-black" size={20} />
-                </div>
-              )}
-              {canScrollRight && (
-                <div
-                  onClick={() => scroll('right')} 
-                  className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 w-8 h-8 bg-white rounded-full shadow-md flex items-center justify-center hover:bg-gray-100 transition-colors z-10 cursor-pointer"
-                >
-                  <ChevronRight className="text-black" size={20} />
-                </div>
-              )}
-            </>
-          )}
-
-          {showAllCategories && (
+        <div 
+          className="sticky top-20 bg-white shadow-md z-40 py-4 mb-8"
+          onMouseEnter={() => setShowNavButtons(true)} 
+          onMouseLeave={() => setShowNavButtons(false)}
+        >
+          <div className="container mx-auto px-4">
             <div 
-              className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
-              onClick={handleClickOutside}
+              ref={categoryContainerRef}
+              className="flex items-center gap-2 overflow-x-auto pb-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']"
+              onScroll={checkScroll}
             >
-              <div className="bg-white rounded-xl p-6 w-full max-w-lg">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-lg font-semibold">Semua Kategori</h3>
-                  <div 
-                    onClick={handleCloseModal}
-                    className="p-1 hover:bg-gray-100 rounded-full cursor-pointer"
-                  >
-                    <X size={20} />
-                  </div>
+              {categories.map((category) => (
+                <div
+                  key={category.name}
+                  onClick={() => setSelectedCategory(category.name)}
+                  className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all cursor-pointer
+                    ${selectedCategory === category.name 
+                      ? 'bg-[#990100] text-white' 
+                      : 'text-gray-700 hover:text-[#990100]'}`}
+                >
+                  {category.icon_component}
+                  <span>{category.name}</span>
                 </div>
-                <div className="grid grid-cols-3 gap-3">
-                  {allCategories.map((category) => (
-                    <div
-                      key={category.name}
-                      onClick={() => {
-                        setSelectedCategory(category.name);
-                        handleCloseModal();
-                      }}
-                      className={`flex flex-col items-center gap-2 p-3 rounded-lg transition-all cursor-pointer
-                        ${selectedCategory === category.name 
-                          ? 'bg-[#990100] text-white' 
-                          : 'bg-gray-50 text-gray-700 hover:bg-gray-100'}`}
-                    >
-                      {category.icon}
-                      <span className="text-sm">{category.name}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              ))}
             </div>
-          )}
+            {showNavButtons && (
+              <>
+                {canScrollLeft && (
+                  <div 
+                    onClick={() => scroll('left')}
+                    className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 w-8 h-8 bg-white rounded-full shadow-md flex items-center justify-center hover:bg-gray-100 transition-colors z-10 cursor-pointer"
+                  >
+                    <ChevronLeft className="text-black" size={20} />
+                  </div>
+                )}
+                {canScrollRight && (
+                  <div
+                    onClick={() => scroll('right')} 
+                    className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 w-8 h-8 bg-white rounded-full shadow-md flex items-center justify-center hover:bg-gray-100 transition-colors z-10 cursor-pointer"
+                  >
+                    <ChevronRight className="text-black" size={20} />
+                  </div>
+                )}
+              </>
+            )}
+          </div>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
@@ -341,7 +280,7 @@ const Produk = () => {
             >
               <div className="relative w-full h-[200px] md:h-[250px]">
                 <img
-                  src={product.image}
+                  src={product.image_urls[0]} // Use first image from array
                   alt={product.name}
                   className="absolute w-full h-full object-cover"
                 />
@@ -383,11 +322,16 @@ const Produk = () => {
                 ) : (
                   <button
                     onClick={() => addToCart(product.id)}
-                    className="mt-4 w-full flex items-center justify-center gap-1 md:gap-2 bg-[#990100] text-white py-2 px-2 md:px-4 rounded-lg hover:bg-[#990100]/90 transition-colors whitespace-nowrap"
+                    disabled={product.stock === 0}
+                    className={`mt-4 w-full flex items-center justify-center gap-1 md:gap-2 py-2 px-2 md:px-4 rounded-lg transition-colors whitespace-nowrap ${
+                      product.stock === 0 
+                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                        : 'bg-[#990100] text-white hover:bg-[#990100]/90'
+                    }`}
                   >
                     <ShoppingCart size={16} className="md:w-5 md:h-5" />
                     <span className="text-[11px] md:text-base truncate">
-                      Tambah pesanan
+                      {product.stock === 0 ? 'Stok Habis' : 'Tambah pesanan'}
                     </span>
                   </button>
                 )}
@@ -401,7 +345,7 @@ const Produk = () => {
       {totalItems > 0 && (
         <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg p-4 z-50">
           <div className="container mx-auto flex items-center justify-between">
-            <div className="flex items-center gap-4">
+            <div className="flex flex-col md:flex-row md:items-center gap-1 md:gap-4">
               <div className="flex items-center gap-2">
                 <ShoppingCart size={24} className="text-[#990100]" />
                 <span className="font-medium text-gray-900">{totalItems} item</span>
@@ -409,12 +353,13 @@ const Produk = () => {
               <div className="text-[#990100] font-semibold">
                 {formatRupiah(totalPrice)}
               </div>
+              <p className="text-sm text-gray-600 hidden md:block">Yuk, selesaikan pesananmu!</p>
             </div>
             <a 
               href="/cart"
-              className="bg-[#990100] text-white px-6 py-2 rounded-lg hover:bg-[#990100]/90 transition-colors"
+              className="bg-[#990100] text-white px-6 py-2 rounded-lg hover:bg-[#990100]/90 hover:text-yellow-300 transition-colors flex items-center gap-2"
             >
-              Checkout
+              <span>Checkout</span>
             </a>
           </div>
         </div>

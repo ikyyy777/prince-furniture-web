@@ -4,6 +4,7 @@ import { Search, ShoppingCart } from 'lucide-react';
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [totalItems, setTotalItems] = useState(0);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -11,6 +12,56 @@ const Header = () => {
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const handleStorageChange = () => {
+      try {
+        const savedCart = localStorage.getItem('cartItems');
+        if (savedCart) {
+          const cartItems = JSON.parse(savedCart) as Record<string, number>;
+          const itemCount = Object.values(cartItems).reduce((sum, quantity) => sum + quantity, 0);
+          setTotalItems(itemCount);
+        } else {
+          setTotalItems(0);
+        }
+      } catch (error) {
+        console.error('Error parsing cart data:', error);
+        setTotalItems(0);
+      }
+    };
+
+    // Initial check
+    handleStorageChange();
+
+    // Create a single debounced update function
+    let timeoutId: number;
+    const debouncedUpdate = () => {
+      clearTimeout(timeoutId);
+      timeoutId = window.setTimeout(handleStorageChange, 50);
+    };
+
+    // Listen for storage changes from other tabs
+    window.addEventListener('storage', debouncedUpdate);
+
+    // Create custom event for cart updates
+    document.addEventListener('cartUpdated', debouncedUpdate);
+
+    // Monitor localStorage changes in the same window
+    const originalSetItem = localStorage.setItem;
+    localStorage.setItem = function(key, value) {
+      originalSetItem.apply(this, [key, value]);
+      if (key === 'cartItems') {
+        debouncedUpdate();
+      }
+    };
+
+    return () => {
+      window.removeEventListener('storage', debouncedUpdate);
+      document.removeEventListener('cartUpdated', debouncedUpdate);
+      localStorage.setItem = originalSetItem;
+      clearTimeout(timeoutId);
+    };
   }, []);
 
   const handleSearch = (e: React.FormEvent) => {
@@ -57,7 +108,7 @@ const Header = () => {
             >
               <ShoppingCart size={24} />
               <span className="absolute top-0 right-0 bg-[#980201] text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
-                0
+                {totalItems}
               </span>
             </a>
             <a 

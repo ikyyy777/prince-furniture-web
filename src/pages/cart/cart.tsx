@@ -5,43 +5,48 @@ type CartItem = {
   id: number;
   name: string;
   price: number;
-  image: string;
+  image_urls: string[]; // Updated to array
   quantity: number;
 }
 
-const products = [
-  {
-    id: 1,
-    name: 'Sofa Modern',
-    category: 'Sofa',
-    price: 1299000,
-    image: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80',
-    stock: 10,
-  },
-  {
-    id: 2,
-    name: 'Rangka Tempat Tidur Minimalis',
-    category: 'Kasur',
-    price: 899000,
-    image: 'https://images.unsplash.com/photo-1505693314120-0d443867891c?auto=format&fit=crop&w=800&q=80',
-    stock: 5,
-  },
-  {
-    id: 3,
-    name: 'Set Meja Makan',
-    category: 'Ruang Makan',
-    price: 1599000,
-    image: 'https://images.unsplash.com/photo-1617806118233-18e1de247200?auto=format&fit=crop&w=800&q=80',
-    stock: 8,
-  }
-];
+type Product = {
+  id: number;
+  name: string;
+  category: string;
+  price: number;
+  image_urls: string[]; // Updated to array
+  stock: number;
+  description: string;
+}
 
 const Cart = () => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [totalPrice, setTotalPrice] = useState(0);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch(import.meta.env.VITE_PRODUCTS_API_URL);
+        if (!response.ok) {
+          throw new Error('Failed to fetch products');
+        }
+        const data = await response.json();
+        setProducts(data.products);
+        setLoading(false);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to fetch products');
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && products.length > 0) {
       const savedCart = localStorage.getItem('cartItems');
       if (savedCart) {
         const parsedCart = JSON.parse(savedCart);
@@ -51,14 +56,14 @@ const Cart = () => {
             id: Number(id),
             name: product?.name || '',
             price: product?.price || 0,
-            image: product?.image || '',
+            image_urls: product?.image_urls || [], // Updated to array
             quantity: quantity as number
           };
         });
         setCartItems(cartItemsArray);
       }
     }
-  }, []);
+  }, [products]);
 
   const formatRupiah = (price: number) => {
     return new Intl.NumberFormat('id-ID', {
@@ -101,6 +106,26 @@ const Cart = () => {
     setTotalPrice(total);
   }, [cartItems]);
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-20">
+        <div className="container mx-auto px-4">
+          Loading...
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-20">
+        <div className="container mx-auto px-4">
+          Error: {error}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 py-20">
       <div className="container mx-auto px-4">
@@ -118,7 +143,7 @@ const Cart = () => {
                 <div key={item.id} className="bg-white rounded-lg shadow-sm p-6 mb-4 border border-[#990100]/20">
                   <div className="flex items-center gap-4">
                     <img 
-                      src={item.image} 
+                      src={item.image_urls[0]} // Use first image from array
                       alt={item.name}
                       className="w-24 h-24 object-cover rounded-lg"
                     />
@@ -156,11 +181,11 @@ const Cart = () => {
 
             <div className="lg:col-span-1">
               <div className="bg-white rounded-lg shadow-sm p-6 border border-[#990100]/20 sticky top-4">
-                <h3 className="text-xl font-bold mb-6">Ringkasan Belanja</h3>
+                <h3 className="text-xl font-bold mb-6 text-black">Ringkasan Belanja</h3>
                 <div className="space-y-4">
                   <div className="flex justify-between">
                     <span className="text-gray-600">Total Item</span>
-                    <span className="font-medium">{cartItems.length}</span>
+                    <span className="font-medium text-black">{cartItems.length}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Total Harga</span>

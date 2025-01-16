@@ -9,6 +9,8 @@ type Product = {
   image_urls: string[]; // Updated to array
   stock: number;
   description: string;
+  kode: string; // Tambahkan field kode
+  discount: number;
 };
 
 type Category = {
@@ -21,10 +23,13 @@ const iconMap: {[key: string]: React.ReactNode} = {
   'default': <BookOpen size={20} />
 };
 
+const ITEMS_PER_PAGE = 20;
+
 const Produk = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('Semua');
+  const [currentPage, setCurrentPage] = useState(1);
   const [cartItems, setCartItems] = useState<{[key: number]: number}>(() => {
     if (typeof window !== 'undefined') {
       const savedCart = localStorage.getItem('cartItems');
@@ -76,10 +81,19 @@ const Produk = () => {
           throw new Error('Failed to fetch products');
         }
         const data = await response.json();
-        setProducts(data.products.map((product: Product) => ({
+        const fetchedProducts = data.products.map((product: Product) => ({
           ...product,
           image_url: product.image_urls[0] // Use first image as main image
-        })));
+        }));
+        setProducts(fetchedProducts);
+        
+        // Update cart totals after products are loaded
+        const savedCart = localStorage.getItem('cartItems');
+        if (savedCart) {
+          const parsedCart = JSON.parse(savedCart);
+          updateCartTotals(parsedCart, fetchedProducts);
+        }
+        
         setLoading(false);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to fetch products');
@@ -95,16 +109,26 @@ const Produk = () => {
     return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(angka);
   };
 
+  const calculateDiscountedPrice = (price: number, discount: number) => {
+    return price - (price * (discount / 100));
+  };
+
   const filteredProducts = selectedCategory === 'Semua' 
     ? products 
     : products.filter(product => product.category === selectedCategory);
 
-  const updateCartTotals = (newCart: {[key: number]: number}) => {
+  // Pagination logic
+  const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const currentProducts = filteredProducts.slice(startIndex, endIndex);
+
+  const updateCartTotals = (newCart: {[key: number]: number}, productList: Product[] = products) => {
     let items = 0;
     let price = 0;
     Object.entries(newCart).forEach(([id, quantity]) => {
       items += quantity;
-      const product = products.find(p => p.id === Number(id));
+      const product = productList.find(p => p.id === Number(id));
       if (product) {
         price += product.price * quantity;
       }
@@ -201,15 +225,10 @@ const Produk = () => {
     }
   }, []);
 
+  // Reset to first page when category changes
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const savedCart = localStorage.getItem('cartItems');
-      if (savedCart) {
-        const parsedCart = JSON.parse(savedCart);
-        updateCartTotals(parsedCart);
-      }
-    }
-  }, []);
+    setCurrentPage(1);
+  }, [selectedCategory]);
 
   if (loading) {
     return <div className="container mx-auto px-4 py-20">Loading...</div>;
@@ -222,7 +241,7 @@ const Produk = () => {
   return (
     <section ref={sectionRef} className="py-5 bg-white" id="produk">
       <div className="container mx-auto px-4">
-        <h2 className="text-4xl font-bold mb-12 text-[#990100]">Pilihan Furniture</h2>
+        <h2 className="text-4xl font-bold mb-12 text-[#990100]">Kategori Pilihan</h2>
 
         <div 
           className="sticky top-20 bg-white shadow-md z-40 py-4 mb-8"
@@ -272,73 +291,110 @@ const Produk = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
-          {filteredProducts.map((product) => (
-            <div
-              key={product.id}
-              className="group relative bg-gradient-to-br from-white to-[#990100]/10 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 border border-[#990100]/20 w-full h-[400px] md:h-[450px] hover:scale-[1.02]"
-            >
-              <div className="relative w-full h-[200px] md:h-[250px]">
-                <img
-                  src={product.image_urls[0]} // Use first image from array
-                  alt={product.name}
-                  className="absolute w-full h-full object-cover"
-                />
-                {/* Watermark */}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <img 
-                    src="./assets/logo.png" 
-                    alt="Prince Furniture Watermark"
-                    className="w-1/3 h-1/3 object-contain opacity-30"
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 justify-items-center">
+          {currentProducts.map((product) => {
+            const discountedPrice = calculateDiscountedPrice(product.price, product.discount);
+            return (
+              <div
+                key={product.id}
+                className="group relative bg-gradient-to-br from-white to-[#990100]/10 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 border border-[#990100]/20 w-full max-w-[204px] h-[350px] hover:scale-[1.02]"
+              >
+                <div className="relative w-full pt-[100%]">
+                  <img
+                    src={product.image_urls[0]}
+                    alt={product.name}
+                    className="absolute inset-0 w-full h-full object-cover"
                   />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <img 
+                      src="./assets/logo.png"
+                      alt="Prince Furniture Watermark"
+                      className="w-1/3 h-1/3 object-contain opacity-30"
+                    />
+                  </div>
                 </div>
-              </div>
-              <div className="p-4 md:p-6">
-                <h3 className="text-sm md:text-xl font-medium mb-2 text-gray-900">{product.name}</h3>
-                <p className="text-sm md:text-base text-[#990100] font-semibold">{formatRupiah(product.price)}</p>
-                <p className="text-sm md:text-base text-gray-600">Stok: {product.stock}</p>
-                {cartItems[product.id] ? (
-                  <div className="mt-4 flex items-center gap-2">
-                    <button
-                      onClick={() => removeFromCart(product.id)}
-                      className="p-2 bg-[#990100] text-white rounded-lg hover:bg-[#990100]/90"
-                    >
-                      <Minus size={16} />
-                    </button>
-                    <span className="font-medium text-gray-900">{cartItems[product.id]}</span>
+                <div className="p-2">
+                  <h3 className="text-xs sm:text-sm font-medium mb-1 text-gray-900 truncate">{product.name}</h3>
+                  {product.discount > 0 ? (
+                    <div>
+                      <p className="text-xs sm:text-sm text-[#990100] font-semibold">{formatRupiah(discountedPrice)}</p>
+                      <p className="text-[10px] text-gray-500 flex items-center gap-1">
+                        <span className="line-through">{formatRupiah(product.price)}</span>
+                        <span className="text-[10px] text-white bg-red-500 px-1 rounded">-{product.discount}%</span>
+                      </p>
+                    </div>
+                  ) : (
+                    <p className="text-xs sm:text-sm text-[#990100] font-semibold">{formatRupiah(product.price)}</p>
+                  )}
+                  <p className="text-xs text-gray-600">Stok: {product.stock}</p>
+                  <p className="text-xs text-gray-600">Kode: {product.kode}</p>
+                  <button
+                    className="mt-2 w-full flex items-center justify-center gap-1 py-1 px-2 rounded-lg transition-colors whitespace-nowrap bg-yellow-400 hover:bg-yellow-500 text-gray-900"
+                  >
+                    <span className="text-[10px] truncate">Lihat Produk</span>
+                  </button>
+                  {cartItems[product.id] ? (
+                    <div className="mt-2 flex items-center gap-1">
+                      <button
+                        onClick={() => removeFromCart(product.id)}
+                        className="p-1 bg-[#990100] text-white rounded-lg hover:bg-[#990100]/90"
+                      >
+                        <Minus size={12} />
+                      </button>
+                      <span className="text-xs font-medium text-gray-900">{cartItems[product.id]}</span>
+                      <button
+                        onClick={() => addToCart(product.id)}
+                        className="p-1 bg-[#990100] text-white rounded-lg hover:bg-[#990100]/90"
+                      >
+                        <Plus size={12} />
+                      </button>
+                      <button
+                        onClick={() => deleteFromCart(product.id)}
+                        className="p-1 bg-red-100 rounded-lg hover:bg-red-200 ml-auto"
+                      >
+                        <Trash2 size={12} className="text-red-600" />
+                      </button>
+                    </div>
+                  ) : (
                     <button
                       onClick={() => addToCart(product.id)}
-                      className="p-2 bg-[#990100] text-white rounded-lg hover:bg-[#990100]/90"
+                      disabled={product.stock === 0}
+                      className={`mt-2 w-full flex items-center justify-center gap-1 py-1 px-2 rounded-lg transition-colors whitespace-nowrap ${
+                        product.stock === 0 
+                          ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                          : 'bg-[#990100] text-white hover:bg-[#990100]/90'
+                      }`}
                     >
-                      <Plus size={16} />
+                      <ShoppingCart size={12} />
+                      <span className="text-[10px] truncate">
+                        {product.stock === 0 ? 'Stok Habis' : 'Tambah'}
+                      </span>
                     </button>
-                    <button
-                      onClick={() => deleteFromCart(product.id)}
-                      className="p-2 bg-red-100 rounded-lg hover:bg-red-200 ml-auto"
-                    >
-                      <Trash2 size={16} className="text-red-600" />
-                    </button>
-                  </div>
-                ) : (
-                  <button
-                    onClick={() => addToCart(product.id)}
-                    disabled={product.stock === 0}
-                    className={`mt-4 w-full flex items-center justify-center gap-1 md:gap-2 py-2 px-2 md:px-4 rounded-lg transition-colors whitespace-nowrap ${
-                      product.stock === 0 
-                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                        : 'bg-[#990100] text-white hover:bg-[#990100]/90'
-                    }`}
-                  >
-                    <ShoppingCart size={16} className="md:w-5 md:h-5" />
-                    <span className="text-[11px] md:text-base truncate">
-                      {product.stock === 0 ? 'Stok Habis' : 'Tambah pesanan'}
-                    </span>
-                  </button>
-                )}
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex justify-center items-center gap-2 mt-8">
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+              <button
+                key={pageNum}
+                onClick={() => setCurrentPage(pageNum)}
+                className={`px-3 py-1 rounded ${
+                  currentPage === pageNum
+                    ? 'bg-[#990100] text-white'
+                    : 'bg-gray-200 hover:bg-gray-300'
+                }`}
+              >
+                {pageNum}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Floating Cart Widget */}

@@ -1,19 +1,21 @@
-import Header from '../../landing_page_components/Header';
-import Hero from '../../landing_page_components/Hero';
-import Produk from '../../landing_page_components/Product';
-import Tentang from '../../landing_page_components/About';
-import Kontak from '../../landing_page_components/Contact';
-import Footer from '../../landing_page_components/Footer';
+import Header from '../../public_components/Header';
+import Hero from '../../index_components/Hero';
+import Produk from '../../index_components/Product';
+import Tentang from '../../index_components/About';
+import Kontak from '../../index_components/Contact';
+import Footer from '../../public_components/Footer';
 import { MessageCircle } from 'lucide-react';
 
 export default function Index() {
   return (
     <main className="min-h-screen bg-white pb-16 md:pb-0">
       <Header />
-      <Hero />
-      <Produk />
-      <Tentang />
-      <Kontak />
+      <div className="max-w-[1200px] mx-auto">
+        <Hero />
+        <Produk />
+        <Tentang />
+        <Kontak />
+      </div>
       <Footer />
       <a
         href="https://wa.me/085100631631"
